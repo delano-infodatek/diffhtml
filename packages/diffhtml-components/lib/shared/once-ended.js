@@ -1,5 +1,5 @@
 import { Internals } from 'diffhtml';
-import { ComponentTreeCache } from '../util/caches';
+import { InstanceCache, ComponentTreeCache } from '../util/caches';
 import componentDidMount from './lifecycle/component-did-mount';
 import componentWillUnmount from './lifecycle/component-will-unmount';
 

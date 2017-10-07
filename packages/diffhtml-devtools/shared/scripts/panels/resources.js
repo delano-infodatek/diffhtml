@@ -9,7 +9,26 @@ class DevtoolsResourcesPanel extends WebComponent {
       <style>${this.styles()}</style>
 
       <div class="ui tall segment">
-        <h3>Resources</h3>
+        <h3>Health</h3>
+      </div>
+
+      <div class="ui styled fluid accordion">
+        <div class="title active">
+          <i class="dropdown icon"></i>
+          Object Pooling
+        </div>
+
+        <div class="content active">
+          <p class="transition visible" style="display: block !important;">
+            <div class="ui toggle checkbox">
+              <input type="checkbox">
+
+              <label>Free</label>
+              <label>Allocated</label>
+              <label>Protected</label>
+            </div>
+          </p>
+        </div>
       </div>
     `;
   }
@@ -28,10 +47,14 @@ class DevtoolsResourcesPanel extends WebComponent {
         position: sticky;
         top: 0;
         z-index: 100;
-        background: #AF8585;
+        background: #3E82F7;
         border-radius: 0 !important;
         color: #FFF;
         user-select: none;
+      }
+
+      .ui.accordion {
+        box-shadow: none !important;
       }
     `;
   }

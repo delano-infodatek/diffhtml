@@ -1,7 +1,7 @@
 import { innerHTML, html, use } from 'diffhtml';
 import syntheticEvents from 'diffhtml-middleware-synthetic-events';
 import logger from 'diffhtml-middleware-logger';
-//import verifyState from 'diffhtml-middleware-verify-state';
+import verifyState from 'diffhtml-middleware-verify-state';
 
 // Components
 import './components/panels';
@@ -24,7 +24,8 @@ const background = chrome.runtime.connect({ name: 'devtools-page' });
 // Chrome extensions don't allow inline event handlers, so this middleware
 // makes it easy to leverage event delegation instead.
 use(syntheticEvents());
-//use(verifyState({ debug: true }));
+//use(logger());
+//use(verifyState());
 
 // Relay the tab ID to the background page
 background.postMessage({
@@ -56,7 +57,10 @@ const render = () => innerHTML(document.body, html`
 
   ${state.version && html`
     <devtools-split-view>
-      <devtools-navigation activeRoute=${state.activeRoute} />
+      <devtools-navigation
+        version=${state.version}
+        activeRoute=${state.activeRoute}
+      />
 
       <devtools-panels route="" activeRoute=${state.activeRoute}>
         <devtools-transactions-panel
@@ -78,16 +82,10 @@ const render = () => innerHTML(document.body, html`
         <devtools-resources-panel />
       </devtools-panels>
 
-      <devtools-panels route="#help" activeRoute=${state.activeRoute}>
-        <devtools-help-panel />
-      </devtools-panels>
-
       <devtools-panels route="#settings" activeRoute=${state.activeRoute}>
         <devtools-settings-panel />
       </devtools-panels>
     </devtools-split-view>
-
-    <devtools-footer>Detected diffHTML version: ${state.version}</devtools-footer>
   `}
 `)
 .catch(ex => { throw ex; });
@@ -96,11 +94,11 @@ background.onMessage.addListener(message => {
   switch (message.action) {
     case 'activated': {
       assign(state, {
-        inProgress: [],
-        completed: [],
         version: message.data.VERSION,
-        middleware: message.data.internals.MiddlewareCache,
+        middleware: message.data.MiddlewareCache,
         mounts: message.data.mounts,
+        inProgress: message.data.inProgress || state.inProgress,
+        completed: message.data.completed || state.completed,
       });
 
       break;
@@ -108,12 +106,14 @@ background.onMessage.addListener(message => {
 
     case 'start': {
       state.inProgress = state.inProgress.concat(message.data);
+
       break;
     }
 
     case 'end': {
       state.inProgress.shift();
       state.completed = state.completed.concat(message.data);
+
       break;
     }
   }

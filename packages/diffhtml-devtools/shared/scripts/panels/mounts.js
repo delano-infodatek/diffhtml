@@ -18,9 +18,6 @@ class DevtoolsMountsPanel extends WebComponent {
       value: selector,
     }));
 
-    const Dropdown = () => {};
-    const test = 'lol';
-
     return html`
       <link rel="stylesheet" href="/styles/theme.css">
       <style>${this.styles()}</style>
@@ -32,8 +29,33 @@ class DevtoolsMountsPanel extends WebComponent {
           placeholder='Select DOM Node'
           fluid
           selection
+          value=${options[0] && options[0].value}
           options=${options}
         />
+      </div>
+
+      ${mounts[0] && html`
+        <div class="wrapper">
+          ${this.renderVTree(mounts[0].tree)}
+        </div>
+      `}
+    `;
+  }
+
+  renderVTree(vTree) {
+    return html`
+      <div class="vtree">
+        <h2 class="vtree-header">${vTree.nodeName}</h2>
+
+        ${Boolean(vTree.childNodes.length) && html`
+          <div class="vtree-children">
+            ${vTree.childNodes.map(vTree => {
+              if (vTree.nodeType !== 3) {
+                return this.renderVTree(vTree);
+              }
+            })}
+          </div>
+        `}
       </div>
     `;
   }
@@ -51,13 +73,33 @@ class DevtoolsMountsPanel extends WebComponent {
         border-right: 0;
         border-top: 0;
         margin-top: 0;
+        margin-bottom: 0;
         position: sticky;
         top: 0;
         z-index: 100;
-        background: #AF8585;
+        background: #3E82F7;
         border-radius: 0 !important;
         color: #FFF;
         user-select: none;
+      }
+
+      .vtree {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 48px;
+        padding: 20px;
+        background-color: #E2E2E2;
+      }
+
+      .vtree-header {
+        margin-bottom: 0;
+      }
+
+      .vtree-children {
+        display: flex;
+        flex-direction: row;
       }
     `;
   }

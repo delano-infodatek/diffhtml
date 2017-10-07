@@ -2,7 +2,7 @@ import unique from 'unique-selector';
 
 export default function devTools(Internals) {
   const cacheTask = [];
-  const selectors = new Set();
+  const selectors = new Map();
   let extension = null;
   let interval = null;
 
@@ -21,13 +21,42 @@ export default function devTools(Internals) {
     }
   });
 
+  const getInternals = () => {
+    const { VERSION } = Internals;
+    const MiddlewareCache = [];
+
+    Internals.MiddlewareCache.forEach(middleware => {
+      const name = middleware.name
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^./, str => str.toUpperCase())
+        .split(' ').slice(0, -1).join(' ');
+
+      MiddlewareCache.push(name);
+    });
+
+    const mounts = [];
+
+    selectors.forEach((tree, selector) => mounts.push({
+      selector,
+      tree,
+    }));
+
+    return {
+      VERSION,
+      MiddlewareCache,
+      mounts,
+    };
+  };
+
   function devToolsTask(transaction) {
     const {
       domNode, markup, options, state: { oldTree, newTree }, state
     } = transaction;
 
     const selector = unique(domNode);
-    selectors.add(selector);
+
+    // Set the initial markup for the element.
+    selectors.set(selector, markup);
 
     const startDate = performance.now();
     const start = function() {
@@ -43,14 +72,19 @@ export default function devTools(Internals) {
       });
     };
 
-    if (extension) { start(); }
+    if (extension) {
+      start();
+    }
 
-    return function() {
+    return function(transaction) {
       const endDate = performance.now();
       const patches = JSON.parse(JSON.stringify(transaction.patches));
       const promises = transaction.promises.slice();
 
       transaction.onceEnded(() => {
+        // Update with the newTree after a render has completed.
+        selectors.set(selector, transaction.newTree);
+
         const { aborted, completed } = transaction;
         const stop = () => extension.endTransaction(startDate, endDate, {
           domNode: selector,
@@ -73,32 +107,20 @@ export default function devTools(Internals) {
   }
 
   devToolsTask.subscribe = () => {
-    const { VERSION } = Internals;
-
     pollForFunction().then(devToolsExtension => {
-      const MiddlewareCache = [];
-
-      Internals.MiddlewareCache.forEach(middleware => {
-        const name = middleware.name
-          .replace(/([A-Z])/g, ' $1')
-          .replace(/^./, str => str.toUpperCase())
-          .split(' ').slice(0, -1).join(' ');
-
-        MiddlewareCache.push(name);
+      extension = devToolsExtension().activate({
+        inProgress: [],
+        completed: [],
+        ...getInternals()
       });
 
-      const mounts = [];
+      // Every two seconds refresh the internal state.
+      requestIdleCallback(function isIdle() {
+        extension.activate(getInternals());
 
-      selectors.forEach(selector => mounts.push({
-        selector,
-      }));
-
-      extension = devToolsExtension().activate({
-        VERSION,
-        internals: {
-          MiddlewareCache,
-        },
-        mounts,
+        setTimeout(() => {
+          requestIdleCallback(isIdle);
+        }, 5000);
       });
 
       if (cacheTask.length) {
@@ -107,7 +129,8 @@ export default function devTools(Internals) {
           cacheTask.length = 0;
         }, 250);
       }
-    }).catch(console.log);
+    })
+    .catch(console.log);
   };
 
   return devToolsTask;

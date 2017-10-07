@@ -11,8 +11,11 @@
   <main></main>
 
   <script src="../node_modules/diffhtml/dist/diffhtml.js"></script>
+  <script src="../../diffhtml-middleware-inline-transitions/dist/inline-transitions.js"></script>
   <script>
-    const { html, innerHTML } = diff;
+    const { use, html, innerHTML } = diff;
+
+    //use(inlineTransitions());
 
     const animate = (el, ...args) => new Promise(resolve => el.animate(
       ...args
@@ -24,13 +27,16 @@
 
     const render = () => {
       innerHTML(document.querySelector('main'), html`
-        <div attached=${attached}>${new Date().toLocaleString()}</div>
+        <div ontextchanged=${attached}>
+          <span>Current date: </span>
+          <span>${new Date().toLocaleString()}</span>
+        </div>
       `)
 
       return render;
     };
 
-    setInterval(render(), 1000);
+    //setInterval(render(), 1000);
     render();
   </script>
 </body>
