@@ -124,7 +124,7 @@ Specifying the options in your `.babelrc`:
 ``` javascript
 {
   plugins: [
-    ["transform-tagged-diffhtml", {
+    ["transform-diffhtml", {
       "tagName": "html",
       "createTree": "createTree",
     }]

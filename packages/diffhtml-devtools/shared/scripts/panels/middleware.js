@@ -9,6 +9,7 @@ class DevtoolsMiddlewarePanel extends WebComponent {
 
   render() {
     const { middleware = [] } = this.props;
+    const { toggleMiddleware } = this;
 
     return html`
       <link rel="stylesheet" href="/styles/theme.css">
@@ -16,6 +17,7 @@ class DevtoolsMiddlewarePanel extends WebComponent {
 
       <div class="ui tall segment">
         <h3>Middleware</h3>
+
         <p>
           View and enable/disable the various middleware registered in the
           application.
@@ -23,10 +25,10 @@ class DevtoolsMiddlewarePanel extends WebComponent {
       </div>
 
       <form>
-        ${middleware.map(name => html`
+        ${middleware.sort().map(name => html`
           <div class="middleware">
-            <div class="ui toggle checkbox">
-              <input type="checkbox" checked ${name === 'Dev Tools' && 'disabled'}>
+            <div class="ui toggle checkbox" onclick=${toggleMiddleware(name)}>
+              <input checked type="checkbox" ${name === 'Dev Tools' && 'disabled'} />
               <label>${name}</label>
             </div>
           </div>
@@ -60,6 +62,14 @@ class DevtoolsMiddlewarePanel extends WebComponent {
         user-select: none;
       }
     `;
+  }
+
+  toggleMiddleware = name => ({ currentTarget }) => {
+    const enabled = Boolean(currentTarget.querySelector('input').checked);
+
+    chrome.tabs.query({ active:true, currentWindow:true }, tabs => {
+      tabs.forEach(tab => chrome.tabs.sendMessage(tab.id, { name, enabled }));
+    });
   }
 }
 

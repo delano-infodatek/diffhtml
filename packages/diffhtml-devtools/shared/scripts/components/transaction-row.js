@@ -74,21 +74,25 @@ class DevtoolsTransactionRow extends WebComponent {
       </td>
 
       <td class="center aligned">
-        ${fps && (
-          fps === Infinity && '&infin;' ||
-          fps >= 60 && '>=60' ||
-          fps.toFixed(1)
-        )}
+        <span>
+          ${fps && (
+            fps === Infinity && '&infin;' ||
+            fps >= 60 && '>=60' ||
+            fps.toFixed(1)
+          )}
+        </span>
       </td>
 
       <td class="center aligned">
-        ${new Date().toLocaleTimeString()}
+        <span>${new Date().toLocaleTimeString()}</span>
       </td>
 
       <td class="center aligned">
-        ${aborted ? 'Aborted' : (
-          stateName === 'completed' ? 'Completed' : 'In Progress'
-        )}
+        <span>
+          ${aborted ? 'Aborted' : (
+            stateName === 'completed' ? 'Completed' : 'In Progress'
+          )}
+        </span>
       </td>
 
       <td class="center aligned" onclick=${this.inspectNode}>
@@ -194,18 +198,28 @@ class DevtoolsTransactionRow extends WebComponent {
       td {
         padding: 10px;
         text-align: center;
-        white-space: no-wrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
       }
 
-      :host(:hover) td { background-color: #E4E4E4 !important; }
+      td > * {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        width: 100%;
+        display: inline-block;
+      }
+
+      td:nth-of-type(1) { width: 40px; }
+      td:nth-of-type(2) { width: 80px; }
+
+      :host(:hover) td {
+        background-color: #FFF4D3 !important;
+        color: #333;
+      }
       :host(:hover) td.red { background-color: #F1B1B1 !important; }
       :host(:hover) td.red a { color: #772E2E !important; }
       :host(:hover) td.yellow { background-color: #FFEBA0 !important; }
       :host(:hover) td.yellow a { color: #EF7C11 !important; }
-      :host(:hover) td.green { background-color: #A5DEA5 !important; }
-      :host(:hover) td.green a { color: #009407 !important; }
+      :host(:hover) td.green { background-color: #b8efc5 !important; }
 
       .red { background-color: #F1B1B1; }
       .red a { color: #772E2E; }

@@ -12,10 +12,12 @@
 
   <script src="../node_modules/diffhtml/dist/diffhtml.js"></script>
   <script src="../../diffhtml-middleware-inline-transitions/dist/inline-transitions.js"></script>
+  <script src="../../diffhtml-middleware-logger/dist/logger.js"></script>
   <script>
     const { use, html, innerHTML } = diff;
 
-    //use(inlineTransitions());
+    use(inlineTransitions());
+    use(logger());
 
     const animate = (el, ...args) => new Promise(resolve => el.animate(
       ...args
@@ -36,7 +38,7 @@
       return render;
     };
 
-    //setInterval(render(), 1000);
+    setInterval(render(), 1000);
     render();
   </script>
 </body>

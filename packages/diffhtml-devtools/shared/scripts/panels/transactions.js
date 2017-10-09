@@ -19,11 +19,20 @@ class DevtoolsTransactionsPanel extends WebComponent {
       <style>${this.styles()}</style>
 
       <div class="ui tall segment">
-        <h3>Transactions</h3>
-        <p>
-          This panel shows you when a render occured and what was patched.
-          Set the sampling rate in <a href="#settings">Settings</a>.
-        </p>
+        <div>
+          <h3>Transactions</h3>
+          <p>
+            This panel shows you when a render occured and what was patched.
+            Set the sampling rate in <a href="#settings">Settings</a>.
+          </p>
+        </div>
+
+        <div>
+          <div class="ui toggle checkbox">
+            <input checked type="checkbox" />
+            <label>Autoscroll</label>
+          </div>
+        </div>
       </div>
 
       <div class="rows">
@@ -100,6 +109,14 @@ class DevtoolsTransactionsPanel extends WebComponent {
         border-radius: 0 !important;
         color: #FFF;
         user-select: none;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: flex-end;
+      }
+
+      .ui.segment div:last-child {
+        align-self: flex-end;
       }
 
       a {
@@ -144,6 +161,9 @@ class DevtoolsTransactionsPanel extends WebComponent {
         position: relative;
       }
 
+      thead th:nth-child(1) { width: 40px; }
+      thead th:nth-child(2) { width: 80px; }
+
       thead th:before {
         content: '';
         display: block;
@@ -182,7 +202,7 @@ class DevtoolsTransactionsPanel extends WebComponent {
 
     // TODO Have more intelligent locking for scrolling.
     if (expandedIndex === -1 && autoScroll) {
-      //this.parentNode.scrollTop = this.parentNode.scrollHeight;
+      this.parentNode.scrollTop = this.parentNode.scrollHeight;
     }
   }
 

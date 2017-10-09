@@ -1,5 +1,4 @@
 import { innerHTML, html, use } from 'diffhtml';
-import syntheticEvents from 'diffhtml-middleware-synthetic-events';
 import logger from 'diffhtml-middleware-logger';
 import verifyState from 'diffhtml-middleware-verify-state';
 
@@ -14,16 +13,12 @@ import './components/transaction-row';
 import './panels/transactions';
 import './panels/mounts';
 import './panels/middleware';
-import './panels/resources';
-import './panels/help';
+import './panels/health';
 import './panels/settings';
 
 const { assign } = Object;
 const background = chrome.runtime.connect({ name: 'devtools-page' });
 
-// Chrome extensions don't allow inline event handlers, so this middleware
-// makes it easy to leverage event delegation instead.
-use(syntheticEvents());
 //use(logger());
 //use(verifyState());
 
@@ -39,6 +34,7 @@ const initialState = {
   inProgress: [],
   completed: [],
   middleware: [],
+  memory: [],
 };
 
 const reactiveBinding = f => ({ set(t, p, v) { t[p] = v; f(); return !0; } });
@@ -78,8 +74,11 @@ const render = () => innerHTML(document.body, html`
         <devtools-middleware-panel middleware=${state.middleware} />
       </devtools-panels>
 
-      <devtools-panels route="#resources" activeRoute=${state.activeRoute}>
-        <devtools-resources-panel />
+      <devtools-panels route="#health" activeRoute=${state.activeRoute}>
+        <devtools-health-panel
+          activeRoute=${state.activeRoute}
+          memory=${state.memory}
+        />
       </devtools-panels>
 
       <devtools-panels route="#settings" activeRoute=${state.activeRoute}>
@@ -94,11 +93,10 @@ background.onMessage.addListener(message => {
   switch (message.action) {
     case 'activated': {
       assign(state, {
-        version: message.data.VERSION,
-        middleware: message.data.MiddlewareCache,
-        mounts: message.data.mounts,
+        ...message.data,
         inProgress: message.data.inProgress || state.inProgress,
         completed: message.data.completed || state.completed,
+        memory: (state.memory.concat(message.data.memory)).slice(-20),
       });
 
       break;

@@ -128,7 +128,7 @@ class DevtoolsNavigation extends WebComponent {
         { route: '', label: 'Transactions', icon: 'exchange' },
         { route: 'mounts', label: 'Mounts', icon: 'sitemap' },
         { route: 'middleware', label: 'Middleware', icon: 'chain' },
-        { route: 'resources', label: 'Health', icon: 'heartbeat' },
+        { route: 'health', label: 'Health', icon: 'heartbeat' },
         { route: 'settings', label: 'Settings', icon: 'settings' },
       ],
     };

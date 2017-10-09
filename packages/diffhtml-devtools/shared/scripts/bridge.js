@@ -1,10 +1,50 @@
 import unique from 'unique-selector';
 
+const cacheTask = [];
+const selectors = new Map();
+const { assign } = Object;
+const toggleMiddleware = {};
+const placeholders = new Set();
+
 export default function devTools(Internals) {
-  const cacheTask = [];
-  const selectors = new Map();
   let extension = null;
   let interval = null;
+
+  document.addEventListener('diffHTML:toggleMiddleware', ev => {
+    const { detail } = ev;
+
+    [...Internals.MiddlewareCache].forEach(userMiddleware => {
+      const name = userMiddleware.displayName || userMiddleware.name
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^./, str => str.toUpperCase())
+        .split(' ').slice(0, -1).join(' ');
+
+      if (detail.name === name) {
+        if (detail.enabled && toggleMiddleware[name]) {
+          Internals.MiddlewareCache.add(toggleMiddleware[name]);
+          delete toggleMiddleware[name];
+        }
+        else if (!detail.enabled) {
+          toggleMiddleware[name] = userMiddleware;
+
+          Internals.MiddlewareCache.add(assign(() => {}, { displayName: name }));
+        }
+
+        Internals.MiddlewareCache.delete(userMiddleware);
+      }
+    });
+  });
+
+  const filterVTree = vTree => {
+    if (!vTree) { return vTree; }
+
+    if (typeof vTree.rawNodeName === 'function') {
+      vTree.nodeName = vTree.rawNodeName.name;
+    }
+
+    vTree.childNodes = vTree.childNodes.map(filterVTree);
+    return vTree;
+  };
 
   const pollForFunction = () => new Promise(resolve => {
     if (window.__diffHTMLDevTools) {
@@ -22,29 +62,41 @@ export default function devTools(Internals) {
   });
 
   const getInternals = () => {
-    const { VERSION } = Internals;
-    const MiddlewareCache = [];
+    const { VERSION, Pool, MiddlewareCache } = Internals;
+    const middleware = [];
 
-    Internals.MiddlewareCache.forEach(middleware => {
-      const name = middleware.name
+    MiddlewareCache.forEach(userMiddleware => {
+      if (userMiddleware.displayName) {
+        return middleware.push(userMiddleware.displayName);
+      }
+
+      const name = userMiddleware.name
         .replace(/([A-Z])/g, ' $1')
         .replace(/^./, str => str.toUpperCase())
         .split(' ').slice(0, -1).join(' ');
 
-      MiddlewareCache.push(name);
+      middleware.push(name);
     });
 
     const mounts = [];
 
     selectors.forEach((tree, selector) => mounts.push({
       selector,
-      tree,
+      tree: filterVTree(tree),
     }));
 
+    const memory = {
+      time: Date.now(),
+      free: Pool.memory.free.size,
+      allocated: Pool.memory.allocated.size,
+      protected: Pool.memory.protected.size,
+    };
+
     return {
-      VERSION,
-      MiddlewareCache,
+      version: VERSION,
+      middleware,
       mounts,
+      memory,
     };
   };
 
@@ -54,17 +106,13 @@ export default function devTools(Internals) {
     } = transaction;
 
     const selector = unique(domNode);
-
-    // Set the initial markup for the element.
-    selectors.set(selector, markup);
-
     const startDate = performance.now();
     const start = function() {
       return extension.startTransaction({
         domNode: selector,
         markup,
         options,
-        state: Object.assign({}, state, state.nextTransaction && {
+        state: assign({}, state, state.nextTransaction && {
           nextTransaction: undefined,
         }, {
           activeTransaction: undefined,
@@ -76,6 +124,8 @@ export default function devTools(Internals) {
       start();
     }
 
+    selectors.set(selector, newTree);
+
     return function(transaction) {
       const endDate = performance.now();
       const patches = JSON.parse(JSON.stringify(transaction.patches));
@@ -83,14 +133,14 @@ export default function devTools(Internals) {
 
       transaction.onceEnded(() => {
         // Update with the newTree after a render has completed.
-        selectors.set(selector, transaction.newTree);
+        selectors.set(selector, transaction.oldTree);
 
         const { aborted, completed } = transaction;
         const stop = () => extension.endTransaction(startDate, endDate, {
           domNode: selector,
           markup,
           options,
-          state: Object.assign({}, state, state.nextTransaction && {
+          state: assign({}, state, state.nextTransaction && {
             nextTransaction: undefined,
           }, {
             activeTransaction: undefined,
@@ -115,13 +165,9 @@ export default function devTools(Internals) {
       });
 
       // Every two seconds refresh the internal state.
-      requestIdleCallback(function isIdle() {
+      setInterval(() => {
         extension.activate(getInternals());
-
-        setTimeout(() => {
-          requestIdleCallback(isIdle);
-        }, 5000);
-      });
+      }, 2000);
 
       if (cacheTask.length) {
         setTimeout(() => {

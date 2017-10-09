@@ -25,7 +25,7 @@ class DevtoolsMountsPanel extends WebComponent {
       <div class="ui tall segment">
         <h3>Mounts</h3>
 
-        <${Dropdown}
+        <Dropdown
           placeholder='Select DOM Node'
           fluid
           selection
@@ -45,7 +45,7 @@ class DevtoolsMountsPanel extends WebComponent {
   renderVTree(vTree) {
     return html`
       <div class="vtree">
-        <h2 class="vtree-header">${vTree.nodeName}</h2>
+        <h2 class="vtree-header">&lt;${vTree.nodeName} /&gt;</h2>
 
         ${Boolean(vTree.childNodes.length) && html`
           <div class="vtree-children">
@@ -86,20 +86,35 @@ class DevtoolsMountsPanel extends WebComponent {
       .vtree {
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        align-items: center;
+        justify-content: flex-start;
+        align-items: flex-start;
         min-height: 48px;
         padding: 20px;
-        background-color: #E2E2E2;
+        width: 100%;
       }
 
       .vtree-header {
         margin-bottom: 0;
+        padding: 5px 21px;
+        background: #f1f1f1;
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all linear 240ms;
+        user-select: none;
+        flex: 1;
+        display: block;
+        width: 100%;
+      }
+
+      .vtree-header:hover {
+        color: #FFF;
+        background-color: #737373;
       }
 
       .vtree-children {
         display: flex;
         flex-direction: row;
+        width: 100%;
       }
     `;
   }

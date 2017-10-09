@@ -330,18 +330,22 @@ export default function({ types: t }) {
               isDynamic = true;
             }
             else {
-              let id = path.scope.generateUidIdentifier('vtree');
+              //let id = path.scope.generateUidIdentifier('vtree');
 
-              path.scope.parent.push({
-                id,
-                init: t.callExpression(createTree, [
-                  t.stringLiteral('#text'),
-                  t.nullLiteral(),
-                  nodeValue,
-                ])
-              });
+              //path.scope.push({
+              //  id,
+              //  init: t.callExpression(createTree, [
+              //    t.stringLiteral('#text'),
+              //    t.nullLiteral(),
+              //    nodeValue,
+              //  ]),
+              //});
 
-              args.replacement = id;
+              args.replacement = t.callExpression(createTree, [
+                t.stringLiteral('#text'),
+                t.nullLiteral(),
+                nodeValue,
+              ]);
             }
           }
 
