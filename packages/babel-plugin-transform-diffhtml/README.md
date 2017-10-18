@@ -69,7 +69,6 @@ needless import.
 ``` json
 plugins: [
   ["transform-diffhtml", {
-    "tagName": "html",
     "createTree": "html",
   }]
 ]

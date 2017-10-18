@@ -7599,16 +7599,12 @@ exports.default = function (_ref) {
 
                 isDynamic = true;
               } else {
-                //jlet id = path.scope.generateUidIdentifier('vtree');
+                var id = path.scope.generateUidIdentifier('vtree');
 
-                //jpath.scope.push({
-                //j  id,
-                //j  init: t.callExpression(createTree, [
-                //j    t.stringLiteral('#text'),
-                //j    t.nullLiteral(),
-                //j    nodeValue,
-                //j  ]),
-                //j});
+                path.scope.parent.push({
+                  id: id,
+                  init: t.callExpression(createTree, [t.stringLiteral('#text'), t.nullLiteral(), nodeValue])
+                });
 
                 args.replacement = t.callExpression(createTree, [t.stringLiteral('#text'), t.nullLiteral(), nodeValue]);
               }
@@ -7622,9 +7618,9 @@ exports.default = function (_ref) {
 
           // Is a static node and never changes, so hoist createTree call.
           if (!isDynamic && isTopLevelStatic) {
-            var id = path.scope.generateUidIdentifier('vtree');
-            path.scope.parent.push({ id: id, init: callExpr });
-            statements[i].expression = id;
+            var _id = path.scope.generateUidIdentifier('vtree');
+            path.scope.parent.push({ id: _id, init: callExpr });
+            statements[i].expression = _id;
           } else {
             statements[i].expression = callExpr;
           }

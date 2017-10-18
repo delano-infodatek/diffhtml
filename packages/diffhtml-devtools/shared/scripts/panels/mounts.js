@@ -5,13 +5,23 @@ import { html } from 'diffhtml';
 import { WebComponent } from 'diffhtml-components';
 import PropTypes from 'prop-types';
 
+const hasNonWhitespaceEx = /\S/;
+
 class DevtoolsMountsPanel extends WebComponent {
   static propTypes = {
     mounts: PropTypes.array,
   }
 
+  state = {
+    index: 0,
+  }
+
+  changeIndex = ({ target }) => this.setState({ index: target.selectedIndex })
+
   render() {
     const { mounts = [] } = this.props;
+    const { index } = this.state;
+    const { styles, changeIndex } = this;
 
     const options = mounts.map(({ selector }) => ({
       text: selector,
@@ -20,11 +30,20 @@ class DevtoolsMountsPanel extends WebComponent {
 
     return html`
       <link rel="stylesheet" href="/styles/theme.css">
-      <style>${this.styles()}</style>
+      <style>${styles()}</style>
 
       <div class="ui tall segment">
         <h3>Mounts</h3>
 
+        ${options.length && html`
+          <select oninput=${changeIndex}>
+            ${options.map(option => html`
+              <option value=${option.value}>${option.text}</option>
+            `)}
+          </select>
+        `}
+
+        <!--
         <Dropdown
           placeholder='Select DOM Node'
           fluid
@@ -32,11 +51,12 @@ class DevtoolsMountsPanel extends WebComponent {
           value=${options[0] && options[0].value}
           options=${options}
         />
+        -->
       </div>
 
-      ${mounts[0] && html`
+      ${mounts[index] && html`
         <div class="wrapper">
-          ${this.renderVTree(mounts[0].tree)}
+          ${this.renderVTree(mounts[index].tree)}
         </div>
       `}
     `;
@@ -44,13 +64,15 @@ class DevtoolsMountsPanel extends WebComponent {
 
   renderVTree(vTree) {
     return html`
-      <div class="vtree">
+      <div class="vtree" data-nodetype=${vTree.nodeType}>
         <h2 class="vtree-header">&lt;${vTree.nodeName} /&gt;</h2>
 
         ${Boolean(vTree.childNodes.length) && html`
           <div class="vtree-children">
             ${vTree.childNodes.map(vTree => {
-              if (vTree.nodeType !== 3) {
+              const hasNonWhitespace = hasNonWhitespaceEx.test(vTree.nodeValue);
+
+              if (vTree.nodeType !== 3 || hasNonWhitespace) {
                 return this.renderVTree(vTree);
               }
             })}
@@ -83,6 +105,11 @@ class DevtoolsMountsPanel extends WebComponent {
         user-select: none;
       }
 
+      select {
+        width: 100%;
+        padding: 10px;
+      }
+
       .vtree {
         display: flex;
         flex-direction: column;
@@ -91,13 +118,20 @@ class DevtoolsMountsPanel extends WebComponent {
         min-height: 48px;
         padding: 20px;
         width: 100%;
+        border: 1px solid #F1F1F1;
+        border-top: none;
+        border-left: none;
+      }
+
+      .vtree:first-child {
+        border-left: 1px solid #F1F1F1;
       }
 
       .vtree-header {
         margin-bottom: 0;
         padding: 5px 21px;
         background: #f1f1f1;
-        border-radius: 16px;
+        border-radius: 0;
         cursor: pointer;
         transition: all linear 240ms;
         user-select: none;
@@ -106,6 +140,7 @@ class DevtoolsMountsPanel extends WebComponent {
         width: 100%;
       }
 
+      .vtree.active .vtree-header,
       .vtree-header:hover {
         color: #FFF;
         background-color: #737373;

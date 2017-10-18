@@ -9,6 +9,7 @@
 
 <body>
   <main></main>
+  <footer></footer>
 
   <script src="../node_modules/diffhtml/dist/diffhtml.js"></script>
   <script src="../../diffhtml-middleware-inline-transitions/dist/inline-transitions.js"></script>
@@ -32,13 +33,20 @@
         <div ontextchanged=${attached}>
           <span>Current date: </span>
           <span>${new Date().toLocaleString()}</span>
+
+          <p>
+            <button onClick=${render}>Re-render</button>
+          </p>
         </div>
       `)
+
+      innerHTML(document.querySelector('footer'), html`
+        Testing out footer
+      `);
 
       return render;
     };
 
-    setInterval(render(), 1000);
     render();
   </script>
 </body>

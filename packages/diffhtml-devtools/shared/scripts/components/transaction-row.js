@@ -156,11 +156,6 @@ class DevtoolsTransactionRow extends WebComponent {
         user-select: none;
       }
 
-      :host(:hover) td {
-        background-color: #f3f3f3;
-        cursor: pointer;
-      }
-
       .transaction-row {
         padding-left: 20px;
         height: 46px;
@@ -212,8 +207,9 @@ class DevtoolsTransactionRow extends WebComponent {
       td:nth-of-type(2) { width: 80px; }
 
       :host(:hover) td {
-        background-color: #FFF4D3 !important;
+        background-color: #FFF4D3;
         color: #333;
+        cursor: pointer;
       }
       :host(:hover) td.red { background-color: #F1B1B1 !important; }
       :host(:hover) td.red a { color: #772E2E !important; }

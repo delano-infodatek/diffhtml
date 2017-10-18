@@ -57,7 +57,7 @@ class DevtoolsNavigation extends WebComponent {
         margin: 0;
         list-style: none;
         padding: 0;
-        width: 250px;
+        width: 100%;
       }
 
       ol li {
