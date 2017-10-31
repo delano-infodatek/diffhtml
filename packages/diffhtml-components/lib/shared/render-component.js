@@ -62,5 +62,9 @@ export default function renderComponent(vTree, context = {}) {
 
   linkTrees([].concat(renderTree));
 
+  if (renderTree && Component) {
+    ComponentTreeCache.set(renderTree, vTree);
+  }
+
   return renderTree;
 };

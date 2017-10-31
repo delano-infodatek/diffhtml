@@ -1,5 +1,5 @@
 import { Internals } from 'diffhtml';
-import { InstanceCache, ComponentTreeCache } from '../util/caches';
+import { ComponentTreeCache, InstanceCache } from '../util/caches';
 import componentDidMount from './lifecycle/component-did-mount';
 import componentWillUnmount from './lifecycle/component-will-unmount';
 
@@ -104,20 +104,21 @@ export default transaction => {
         for (let i = 0; i < REPLACE_CHILD.length; i += 2) {
           const newTree = REPLACE_CHILD[i];
           const oldTree = REPLACE_CHILD[i + 1];
+          const oldComponentTree = ComponentTreeCache.has(oldTree);
+          const newComponentTree = ComponentTreeCache.has(newTree);
 
-          if (typeof newTree.rawNodeName !== 'function' && typeof oldTree.rawNodeName !== 'function') {
-            continue;
+          if (oldComponentTree) {
+            componentWillUnmount(oldTree);
           }
-
-          const componentTree = ComponentTreeCache.get(oldTree);
-
-          if (InstanceCache.has(componentTree)) {
-            ComponentTreeCache.delete(InstanceCache.get(oldTree));
-            InstanceCache.delete(oldTree);
+          if (newComponentTree) {
+            componentDidMount(newTree);
           }
+        }
+      }
 
-          InstanceCache.delete(oldTree);
-          componentDidMount(newTree);
+      if (REMOVE_CHILD) {
+        for (let i = 0; i < REMOVE_CHILD.length; i++) {
+          componentWillUnmount(REMOVE_CHILD[i]);
         }
       }
     });

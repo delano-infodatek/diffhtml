@@ -17,13 +17,14 @@ module.exports = (originalPath, filePath) => {
     let newPath = null;
 
     if (sub && file) {
-      newPath = `../../node_modules/diffhtml${sub}/dist/es/${file}`;
+      newPath = `../../../node_modules/diffhtml${sub}/dist/es/${file}`;
     }
     else if (file) {
-      newPath = `../../node_modules/diffhtml/dist/es/${file}`;
+      newPath = `../../../node_modules/diffhtml/dist/es/${file}`;
     }
     else if (sub2) {
-      newPath = `../../node_modules/diffhtml${sub2}`;
+      const [ name, ...path ] = sub2.split('/');
+      newPath = `../../../node_modules/diffhtml${name}/dist/es/${path.length ? path.join('/') : ''}`;
     }
     else {
       newPath = '../../../node_modules/diffhtml/dist/es/index';
@@ -33,6 +34,11 @@ module.exports = (originalPath, filePath) => {
 
     if (newPath[0] !== '.') {
       newPath = `./${newPath}`;
+    }
+
+    // Ensure folders get a trailing slash.
+    if (!newPath.includes('.js') && newPath[--newPath.length] !== '/') {
+      newPath += '/';
     }
 
     return newPath;
