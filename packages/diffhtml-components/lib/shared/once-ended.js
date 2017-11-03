@@ -41,7 +41,7 @@ export default transaction => {
         // If working with a custom element, we want to do some special logic
         // to make sure attributeChangedCallback triggers properly with dynamic
         // values.
-        if (root.customElements && customElements.get(oldTree.nodeName)) {
+        if (root.customElements && root.customElements.get(oldTree.nodeName)) {
           const blacklistName = oldTree.nodeName + '-' + name;
 
           // We remove and re-add the attribute to trigger a change in a web

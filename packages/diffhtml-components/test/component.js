@@ -169,12 +169,12 @@ describe('Component implementation', function() {
       equal(counter, 1);
     });
 
-    it.skip('can update multiple top level with setState', () => {
+    it.only('can update multiple top level with setState', () => {
       class CustomComponent extends Component {
         render() {
           const { count } = this.state;
 
-          return html`${Array(count).fill(null).map((nul, i) => html`
+          return html`${[...Array(count)].map((__unused, i) => html`
             <div>${String(i)}</div>
           `)}`;
         }
