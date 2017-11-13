@@ -34,5 +34,5 @@ export default function componentDidMount(vTree) {
     instance.componentDidMount();
   }
 
-  vTree.childNodes.forEach(componentDidMount);
+  //vTree.childNodes.forEach(componentDidMount);
 }

@@ -1,38 +1,20 @@
-<div class="hero">
-  <p class="social">
-    <a class="github" href="https://github.com/tbranyen/diffhtml">
-      <i class="fa fa-github"></i>
-    </a>
-    <a class="stackoverflow" href="https://stackoverflow.com/search?q=diffhtml+javascript">
-      <i class="fa fa-stack-overflow"></i>
-    </a>
-    <a class="twitter" href="https://twitter.com/diffhtml">
-      <i class="fa fa-twitter"></i>
-    </a>
-    <a class="reddit" href="https://reddit.com/r/diffhtml">
-      <i class="fa fa-reddit"></i>
-    </a>
-  </p>
-
-  <div class="video-container">
-
-  </div>
-  <!--
-  <img src="https://www.styled-components.com/static/logo.png" style="border: none">
-  -->
-</div>
-
 # Getting started
 
 ## About
 
-The diffHTML project is a collection of modules that all depend on or work with
-the
-[diffhtml](https://github.com/tbranyen/diffhtml/tree/master/packages/diffhtml)
-module. This module provides functions to allow writing declarative
-HTML that gets diffed through a Virtual DOM and patched into the real DOM.
+diffHTML is a view library for creating reactive interfaces for the web. You
+would use it in the same way as tools like [React](https://reactjs.org/) and
+[Vue](https://vuejs.org/), along with many others that assist with creative
+rich user interfaces.
 
-**Turns:**
+This tool is a logical progression from learning `innerHTML` on a page, you destroy all state and have no hooks
+into the changes that would occur between the states.  With diffHTML you get to
+write familiar declarative markup (HTML), use a simple core API (minimal
+learning required), and 
+
+The diffHTML core library
+
+**turns:**
 
 ``` javascript
 const div = document.createElement('div');
@@ -42,7 +24,7 @@ docuent.body.appendChild(div);
 div.textContent = 'Hello world!';
 ```
 
-**Into:**
+**into:**
 
 ``` javascript
 diff.innerHTML(document.body, '<div>Hello world</div>');
