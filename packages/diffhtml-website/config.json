@@ -27,9 +27,10 @@
     }],
 
     "Middleware": ["middleware.html", {
-      "Logging": "#logging",
+      "Logger": "#logger",
       "Inline Transitions": "#inline-transitions",
       "Synthetic Events": "#synthetic-events",
+      "Service Worker": "#service-worker",
       "Verify State": "#verify-state"
     }],
 

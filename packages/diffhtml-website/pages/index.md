@@ -17,18 +17,28 @@ The diffHTML core library
 **turns:**
 
 ``` javascript
+// Manually create container.
 const div = document.createElement('div');
 
+// Update the content using the `innerHTML` property.
 div.innerHTML = 'Hello world';
-docuent.body.appendChild(div);
-div.textContent = 'Hello world!';
+
+// Add into the page body.
+document.body.appendChild(div);
+
+// Update only the text.
+div.textContent = 'Hello updated world!';
 ```
 
 **into:**
 
 ``` javascript
+// Declaratively create a DIV with the content and append into the page body.
 diff.innerHTML(document.body, '<div>Hello world</div>');
-diff.innerHTML(document.body, '<div>Hello world!</div>');
+
+// Represent how you want the body to look and diffHTML will update only the
+// changed text.
+diff.innerHTML(document.body, '<div>Hello updated world!</div>');
 ```
 
 Unlike React, the core engine of diffHTML was designed with the browser in mind
@@ -68,31 +78,3 @@ We encourage brand new developers who want to try diffHTML to use our pre-made G
   ```
 
 _While `diffhtml` is the core package to install, there are many other modules you may also want to install depending on your use cases._
-
-## Accessing the API
-
-* Browser:
-
-  ``` xml
-  <script src="node_modules/diffhtml/dist/diffhtml.js"></script>
-  ```
-
-  ``` javascript
-  diff.innerHTML(document.body, 'Hello world!')
-  ```
-
-* ES Modules:
-
-  ``` javascript
-  import { innerHTML } from 'diffhtml'
-
-  innerHTML(document.body, 'Hello world!')
-  ```
-
-* Node:
-
-  ``` javascript
-  const { innerHTML } = require('diffhtml')
-
-  innerHTML(document.body, 'Hello world!')
-  ```
